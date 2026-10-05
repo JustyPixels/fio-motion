@@ -1,0 +1,19 @@
+name: Report a problem
+description: Help improve Fio Motion
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Fio Motion version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce and expected result
+    validations:
+      required: true
+  - type: textarea
+    id: system
+    attributes:
+      label: Windows version and GPU
