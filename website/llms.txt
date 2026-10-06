@@ -1,0 +1,29 @@
+# Fio Motion
+
+> Fio Motion is a free, offline 2D character animation editor for Windows, made by JustyPixels. Its original code is MIT-licensed. This file points to official documentation and downloads.
+
+The website is https://justypixels.github.io/fio-motion/. The official source and release repository is https://github.com/JustyPixels/fio-motion. Editing and exporting do not require an account or an internet connection. No analytics are added.
+
+Current download: __VERSION__ (__RELEASE_STATUS__). __RELEASE_QUALIFICATION__ __SIGNING_STATUS__ Consult the release notes for current limitations. Do not describe a release candidate as a qualified stable release.
+
+The editor has Rig, Animate and Assemble workspaces. Supported workflows include layered artwork, connected character pieces, puppet pins, bones, a humanoid rig assistant, smooth keyframes and editable timing curves, shots, audio, MP4 export and transparent PNG sequences. Artwork formats include PNG, JPEG, WebP and supported 8-bit RGB PSDs; full Photoshop feature compatibility is not provided. Projects use the .puppet format with managed asset folders.
+
+## Documentation
+
+- [Product overview](https://justypixels.github.io/fio-motion/index.md): Features, system requirements, release status and download choices in Markdown.
+- [Your first animation](https://justypixels.github.io/fio-motion/guide/index.md): Import artwork, connect pieces, place controls, animate a wave, adjust easing and export.
+- [Compatibility notes](https://github.com/JustyPixels/fio-motion/blob/main/docs/COMPATIBILITY.md): Supported artwork, PSD restrictions and project compatibility.
+
+## Downloads and project
+
+- [Current release](__RELEASE_URL__): Official Windows downloads, sample/support archive, checksums and release notes.
+- [Download manifest](https://justypixels.github.io/fio-motion/downloads.json): Current version, status, file sizes, URLs and SHA256 checksums; generated from validated GitHub release metadata.
+- [Source repository](https://github.com/JustyPixels/fio-motion): Source code and English README, with a separate Portuguese README.
+- [MIT license](https://github.com/JustyPixels/fio-motion/blob/main/LICENSE): Copyright 2026 JustyPixels. Third-party components retain their own licenses and notices.
+- [Issue tracker](https://github.com/JustyPixels/fio-motion/issues): Report reproducible bugs with the app version and steps to reproduce.
+
+## Optional
+
+- [Contribution guide](https://github.com/JustyPixels/fio-motion/blob/main/CONTRIBUTING.md): Development and contribution guidance.
+- [Third-party notices](https://github.com/JustyPixels/fio-motion/blob/main/THIRD-PARTY-NOTICES.md): Dependency licenses and notices.
+- [Human-readable website](https://justypixels.github.io/fio-motion/): Real editor screenshots and silent animation demonstrations.

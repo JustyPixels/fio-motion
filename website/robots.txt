@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://justypixels.github.io/fio-motion/sitemap.xml
