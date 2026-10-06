@@ -78,7 +78,7 @@ function register() {
   handle('export:reveal', id => { const job = jobs.get(id); if (job?.complete) shell.showItemInFolder(job.output); });
 }
 app.whenReady().then(async () => {
-  await preferences.load();register(); window = new BrowserWindow({ show: process.env.PUPPET_TEST_APP !== '1', width: 1540, height: 980, minWidth: 1100, minHeight: 740, title: 'Fio Motion', backgroundColor: '#15161b', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname,'preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
+  await preferences.load();register(); window = new BrowserWindow({ show: process.env.PUPPET_TEST_APP !== '1', width: 1540, height: 980, minWidth: 1100, minHeight: 740, title: 'Fio Motion', icon: path.join(__dirname,'..',app.isPackaged?'dist':'public','icon.png'), backgroundColor: '#15161b', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname,'preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' })); window.webContents.on('will-navigate', (event,url) => { if (url !== window.webContents.getURL()) event.preventDefault(); });
   let closePending=false;
   window.on('close', event => { if (dirty && !closing) { event.preventDefault();if(closePending)return;closePending=true;dialog.showMessageBox(window,{type:'question',buttons:['Save','Discard','Cancel'].map(text),defaultId:0,cancelId:2,message:text('This project has unsaved changes.')}).then(result=>{closePending=false;if(result.response===1){closing=true;window.destroy();}else if(result.response===0)window.webContents.send('project:save-request');}).catch(()=>{closePending=false;});} });

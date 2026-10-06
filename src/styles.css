@@ -5,6 +5,7 @@
 .rig-connections h3{display:flex;align-items:center;gap:6px}.connection-followers{display:flex;flex-direction:column;gap:7px;margin:12px 0}.connection-followers>span:not(.tiny-label){display:flex;align-items:center;gap:6px;color:#b9a1d4}.connection-indicator{color:#bda0d1;font-size:16px;line-height:1}
 
 /* Fio Motion: accessible studio layout */
+.brand-mark{background:transparent;overflow:hidden}.brand-mark img{display:block;width:100%;height:100%;object-fit:contain}.loading-screen .brand-mark{background:transparent}.welcome-icon{display:block;object-fit:contain;margin-bottom:18px}
 :root{font-family:'Segoe UI','Yu Gothic UI','Microsoft YaHei UI',sans-serif;--panel:#202127;--line:#383a45;--accent:#b8a1ee;font-size:14px;color:#e0dde7}
 .app-shell{min-width:960px}.app-header{gap:18px;height:64px}.brand strong{font-size:20px}.brand strong span{margin-left:5px}.header-project{min-width:140px}.app-header button{min-height:32px}.workspace-bar{height:48px}.workspace-tabs button{min-height:36px}.workspace-description{display:none}
 .panel-controls{display:flex;justify-content:space-between;align-items:center;padding:4px 12px;background:#24252d;min-height:32px;border-bottom:1px solid #383a45}.panel-controls>span{color:#c4bed0;overflow:hidden;text-overflow:ellipsis}.panel-controls button{padding:5px 10px}

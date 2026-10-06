@@ -12,7 +12,7 @@ O Fio Motion funciona offline e tem todos os recursos desbloqueados. Não precis
 
 [Baixe o instalador ou a versão portátil](https://github.com/JustyPixels/fio-motion/releases). O arquivo `support.zip` inclui personagens de exemplo, guias e notas de compatibilidade.
 
-A versão atual é **1.0.0-rc.1**, uma candidata para testes. Os executáveis ainda não têm assinatura digital, então o Windows pode exibir um aviso ao abrir. Os testes pendentes e as limitações estão nas [notas da versão](docs/RELEASE-NOTES.md).
+A versão atual é **1.0.0-rc.2**, uma candidata para testes. Os executáveis ainda não têm assinatura digital, então o Windows pode exibir um aviso ao abrir. Os testes pendentes e as limitações estão nas [notas da versão](docs/RELEASE-NOTES.md).
 
 ## Como funciona
 

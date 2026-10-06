@@ -1,5 +1,12 @@
 # Changes
 
+## 1.0.0-rc.2 — 2026-10-06
+
+- Use the website's purple puppet icon in the editor, welcome screen, loading screen and app window.
+- Read the editor's version label from the package version.
+- Include the MIT license in the Windows packages and support archive.
+- Publish shorter release notes and refresh the website's download metadata.
+
 
 
 ## 1.0.0-rc.1 — 2026-10-05

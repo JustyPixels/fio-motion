@@ -13,7 +13,7 @@ Free, fully unlocked and no account needed. The original code is [MIT-licensed](
 
 [Download the installer or portable build](https://github.com/JustyPixels/fio-motion/releases), or [watch the studio tour](https://justypixels.github.io/fio-motion/#demo). The support archive includes example characters and offline guides.
 
-The current build is **1.0.0-rc.1**, an unsigned release candidate for testing. Windows may display a trust warning. Read the [release notes](docs/RELEASE-NOTES.md) for measurements, known limitations and checks still pending.
+The current build is **1.0.0-rc.2**, an unsigned release candidate for testing. Windows may display a trust warning. Read the [release notes](docs/RELEASE-NOTES.md) for measurements, known limitations and checks still pending.
 
 ## Inside the studio
 

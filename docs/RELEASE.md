@@ -1,6 +1,6 @@
 # Fio Motion 1.0 release qualification
 
-The development candidate is 1.0.0-rc.1. The owner explicitly authorized unsigned publication on 2026-10-05. Publish it as an unsigned public prerelease for testing; qualification for stable 1.0 still requires the remaining gates below.
+The current candidate is 1.0.0-rc.2, a branding and packaging update. The owner explicitly authorized unsigned publication on 2026-10-05. Publish it as an unsigned public prerelease for testing; qualification for stable 1.0 still requires the remaining gates below. RC 1 measurements remain historical evidence; do not present them as newly measured RC 2 results.
 
 Distribution destination: `JustyPixels/fio-motion`. The repository contains application source, guides and issue reports; packaged downloads are published through Releases. The owner supplied the GitHub name. Unsigned downloads can produce Windows trust or SmartScreen warnings; no certificate publisher identity is claimed.
 
