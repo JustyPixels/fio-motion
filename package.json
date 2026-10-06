@@ -1,0 +1,90 @@
+{
+  "name": "fio-motion",
+  "version": "1.0.0-rc.1",
+  "private": true,
+  "description": "An offline character animation studio for Windows",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "desktop": "electron .",
+    "start": "node scripts/dev.mjs",
+    "build": "node scripts/generate-locales.mjs && tsc --noEmit && vite build",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "dist": "npm run build:wasm && npm run build && electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "studio.puppet.editor",
+    "productName": "Fio Motion",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "desktop/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/ffmpeg-minimal",
+        "to": "ffmpeg",
+        "filter": [
+          "bin/*.exe",
+          "bin/*.dll",
+          "sources/**",
+          "*.txt",
+          "*.md",
+          "COPYING*"
+        ]
+      },
+      {
+        "from": "examples",
+        "to": "examples"
+      },
+      {
+        "from": "docs",
+        "to": "docs"
+      },
+      {
+        "from": "THIRD-PARTY-NOTICES.txt",
+        "to": "THIRD-PARTY-NOTICES.txt"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "Fio-Motion-${version}-${arch}.${ext}",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "Fio-Motion-${version}-${arch}-portable.${ext}"
+    }
+  },
+  "dependencies": {
+    "ag-psd": "^31.0.2",
+    "fflate": "^0.8.3",
+    "immer": "^11.1.21",
+    "lucide-react": "^1.52.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.29.9",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  },
+  "type": "module",
+  "author": "JustyPixels"
+}

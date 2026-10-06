@@ -1,0 +1,9 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+const root=path.resolve('docs/licenses');await fs.mkdir(root,{recursive:true});
+const queue=Object.keys(JSON.parse(await fs.readFile('package.json','utf8')).dependencies),seen=new Set();
+while(queue.length){const name=queue.shift();if(seen.has(name))continue;seen.add(name);const directory=path.resolve('node_modules',name),metadata=JSON.parse(await fs.readFile(path.join(directory,'package.json'),'utf8'));queue.push(...Object.keys(metadata.dependencies??{}));const licenses=(await fs.readdir(directory)).filter(f=>/^(license|licence|copying|notice)/i.test(f));for(const file of licenses){if((await fs.stat(path.join(directory,file))).isFile())await fs.copyFile(path.join(directory,file),path.join(root,`${name.replaceAll('/','-')}-${file}`));}}
+const lock=await fs.readFile('engine/Cargo.lock','utf8'),crates=[...lock.matchAll(/\[\[package\]\]\s*name = "([^"]+)"\s*version = "([^"]+)"/g)].map(m=>`${m[1]}-${m[2]}`),registry=path.join(process.env.USERPROFILE,'.cargo/registry/src');
+for(const repository of await fs.readdir(registry)){for(const crate of crates){const directory=path.join(registry,repository,crate);const files=await fs.readdir(directory).catch(()=>[]);for(const file of files.filter(f=>/^(license|licence|copying|notice)/i.test(f))){if((await fs.stat(path.join(directory,file))).isFile())await fs.copyFile(path.join(directory,file),path.join(root,`${crate}-${file}`));}}}
+await fs.writeFile(path.join(root,'README.txt'),'Dependency license texts are copied from the exact installed npm packages and Cargo registry versions used by this build. Electron runtime licenses are included beside the installed executable. FFmpeg source and license texts are in the ffmpeg resources directory.\n');
+console.log(`Collected license texts for ${seen.size} runtime npm packages and ${crates.length} Rust packages.`);

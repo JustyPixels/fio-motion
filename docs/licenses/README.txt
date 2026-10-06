@@ -1,0 +1,1 @@
+Dependency license texts are copied from the exact installed npm packages and Cargo registry versions used by this build. Electron runtime licenses are included beside the installed executable. FFmpeg source and license texts are in the ffmpeg resources directory.

@@ -1,0 +1,13 @@
+const fs=require('node:fs/promises');
+const path=require('node:path');
+const locales=['pt-BR','en','es','fr','de','ja','zh-CN'];
+const config=require('./release-config.json');
+function store(app){const file=path.join(app.getPath('userData'),'fio-preferences.json');let state={locale:'en',updates:false,recent:[],lastCheck:0};let pending=Promise.resolve();return {
+  async load(){try{const p=JSON.parse(await fs.readFile(file,'utf8'));if(locales.includes(p.locale))state.locale=p.locale;state.updates=p.updates===true;state.recent=Array.isArray(p.recent)?p.recent.filter(v=>typeof v==='string'&&path.isAbsolute(v)).slice(0,12):[];state.lastCheck=Number.isFinite(p.lastCheck)?p.lastCheck:0;}catch{}return state;},
+  async save(p){if(p.locale!==undefined&&!locales.includes(p.locale))throw new Error('Unsupported language.');if(p.locale!==undefined)state.locale=p.locale;if(p.updates!==undefined)state.updates=p.updates===true;const data=JSON.stringify(state);const write=pending.catch(()=>{}).then(async()=>{const temp=file+'.tmp';await fs.writeFile(temp,data);await fs.rename(temp,file);});pending=write;await write;return {...state};},
+  async remember(value){state.recent=[value,...state.recent.filter(v=>v!==value)].slice(0,12);await this.save({});},
+  get state(){return state;},
+  async check(manual=false){if(!/^[a-z0-9-]+$/i.test(config.owner)||!/^[a-z0-9_.-]+$/i.test(config.repository))return {status:'unconfigured'};if(!manual&&(!state.updates||Date.now()-state.lastCheck<86400000))return {status:'skipped'};state.lastCheck=Date.now();try{await this.save({});const response=await fetch(`https://api.github.com/repos/${config.owner}/${config.repository}/releases/latest`,{headers:{Accept:'application/vnd.github+json'},signal:AbortSignal.timeout(10000)});if(!response.ok)return {status:'unavailable'};const reader=response.body.getReader();let size=0,chunks=[];while(true){const {value,done}=await reader.read();if(done)break;size+=value.length;if(size>1048576){await reader.cancel();throw new Error('Oversized release response.');}chunks.push(Buffer.from(value));}const release=JSON.parse(Buffer.concat(chunks).toString('utf8')),tag=String(release.tag_name??'').replace(/^v/,'');if(!/^\d+\.\d+\.\d+$/.test(tag)||release.draft||release.prerelease)return {status:'current'};const a=tag.split('.').map(Number),b=config.version.split('-')[0].split('.').map(Number);const newer=a.some((n,i)=>n>b[i]&&a.slice(0,i).every((v,j)=>v===b[j]))||tag===config.version.split('-')[0]&&config.version.includes('-');return {status:newer?'available':'current',version:tag};}catch{return {status:'unavailable'};}},
+  releaseURL(){return `https://github.com/${config.owner}/${config.repository}/releases`;}
+};}
+module.exports={store,locales};

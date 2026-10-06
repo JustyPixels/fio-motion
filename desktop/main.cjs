@@ -1,0 +1,90 @@
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const fs = require('node:fs/promises');
+const path = require('node:path');
+const { spawn } = require('node:child_process');
+const { once } = require('node:events');
+const { randomUUID, createHash } = require('node:crypto');
+const { zipSync, strToU8 } = require('fflate');
+app.setPath('userData',path.join(app.getPath('appData'),'Puppet Studio'));
+if(process.env.PUPPET_TEST_APP==='1'){const testData=path.resolve('qa-results/desktop-user-data');require('node:fs').mkdirSync(testData,{recursive:true});app.setPath('userData',testData);}
+const preferences=require('./preferences.cjs').store(app);
+const messages=require('./locales.json');
+const text=key=>messages[preferences.state.locale]?.[key]??key;
+let window, projectPath, pendingOpenPath, projectGeneration = 0, dirty = false, closing = false;
+const jobs = new Map();
+const DATA_LIMIT = 1024 * 1024 * 1024;
+function validate(p) { if (!p || ![1,2,3].includes(p.version)) throw new Error('Unsupported project version. The original file has not been changed.'); if (!Array.isArray(p.assets) || !Array.isArray(p.scenes) || !Array.isArray(p.rigs) || !p.sequence || !Number.isInteger(p.width) || !Number.isInteger(p.height) || p.width < 1 || p.width > 8192 || p.height < 1 || p.height > 8192) throw new Error('Invalid project.'); return p; }
+function dataBuffer(data) { if (typeof data !== 'string' || !/^data:(image\/(png|jpeg|webp)|audio\/[a-z0-9.+-]+);base64,/i.test(data)) throw new Error('Unsupported embedded asset.'); const buffer = Buffer.from(data.slice(data.indexOf(',') + 1), 'base64'); if (buffer.length > 512 * 1024 * 1024) throw new Error('An asset exceeds the file-size limit.'); return buffer; }
+function safeResolve(root, relative) { if (typeof relative !== 'string' || path.isAbsolute(relative)) throw new Error('Invalid asset path.'); const resolved = path.resolve(root, relative); if (!resolved.toLowerCase().startsWith(path.resolve(root).toLowerCase() + path.sep)) throw new Error('Asset path escapes the project directory.'); return resolved; }
+async function atomic(file, contents) { const temp = `${file}.${randomUUID()}.tmp`; try { await fs.writeFile(temp, contents, { flag: 'wx' }); const handle = await fs.open(temp, 'r+'); await handle.sync(); await handle.close(); await fs.rename(temp, file); } finally { await fs.rm(temp, { force: true }).catch(() => {}); } }
+async function hydrate(file) { const stat = await fs.stat(file); if (stat.size > 256 * 1024 * 1024) throw new Error('The project manifest is too large.'); const p = validate(JSON.parse(await fs.readFile(file, 'utf8'))); let total = 0; for (const asset of p.assets) { if (!asset.data && asset.path) { const assetPath = safeResolve(path.dirname(file), asset.path); const stat = await fs.stat(assetPath).catch(() => { throw new Error(`Missing asset: ${asset.name}. Restore the asset folder beside the project.`); }); if ((total += stat.size) > DATA_LIMIT) throw new Error('The project assets exceed the memory budget.'); asset.data = `data:${asset.mime};base64,${(await fs.readFile(assetPath)).toString('base64')}`; } } return p; }
+async function saveProject(p, file) { validate(p); const stored = structuredClone(p), folder = `${path.basename(file, path.extname(file))}.assets`; await fs.mkdir(path.join(path.dirname(file), folder), { recursive: true }); let total = 0; for (let i = 0; i < stored.assets.length; i++) { const asset = stored.assets[i], buffer = dataBuffer(asset.data); if ((total += buffer.length) > DATA_LIMIT) throw new Error('Project assets exceed the save budget.'); const ext = asset.mime === 'image/png' ? 'png' : asset.mime === 'image/jpeg' ? 'jpg' : asset.mime === 'image/webp' ? 'webp' : asset.mime.includes('wav') ? 'wav' : 'mp3'; const filename = `${asset.id.replace(/[^a-z0-9-]/gi, '').slice(0, 80) || i}-${createHash('sha256').update(buffer).digest('hex').slice(0,20)}.${ext}`; asset.path = `${folder}/${filename}`; const target = path.join(path.dirname(file), folder, filename); const existing = await fs.readFile(target).catch(() => null); if (!existing || !existing.equals(buffer)) await atomic(target, buffer); delete asset.data; } await atomic(file, JSON.stringify(stored)); }
+function encoderPath() { const vendor = path.join(process.resourcesPath, 'ffmpeg', 'bin', 'ffmpeg.exe'); const development = path.join(__dirname, '..', 'vendor', 'ffmpeg-minimal', 'bin', 'ffmpeg.exe'); return require('node:fs').existsSync(vendor) ? vendor : require('node:fs').existsSync(development) ? development : 'ffmpeg'; }
+async function audioInputs(plan,temp) {
+  const args=[],filters=[];if(!plan)return {args,filters};
+  if(!Array.isArray(plan.clips)||!Array.isArray(plan.assets)||plan.clips.length>200||!Number.isFinite(plan.start)||!Number.isFinite(plan.end)||plan.end<=plan.start||plan.end-plan.start>3600)throw new Error('Invalid audio export plan.');
+  for(const clip of plan.clips){
+    if(!['start','sourceIn','duration','volume','fadeIn','fadeOut'].every(k=>Number.isFinite(clip[k]))||clip.sourceIn<0||clip.duration<0||clip.volume<0||clip.volume>4||clip.fadeIn<0||clip.fadeOut<0)throw new Error('Invalid audio clip.');
+    const asset=plan.assets.find(a=>a.id===clip.assetId),at=Math.max(plan.start,clip.start),end=Math.min(plan.end,clip.start+clip.duration);if(!asset||end<=at)continue;
+    const input=args.length/2+1,offset=at-clip.start,source=clip.sourceIn+offset,file=path.join(temp,`audio-${input}.bin`);await fs.writeFile(file,dataBuffer(asset.data));args.push('-i',file);
+    const keys=Array.isArray(clip.volumeKeys)?[...clip.volumeKeys].sort((a,b)=>a.time-b.time):[];if(keys.length>10000||keys.some(k=>!Number.isFinite(k.time)||!Number.isFinite(k.value)||k.value<0))throw new Error('Invalid audio volume automation.');
+    let automation=keys.length?String(keys.at(-1).value):'1';for(let i=keys.length-2;i>=0;i--){const a=keys[i],b=keys[i+1];if(b.time<=a.time)continue;automation=`if(lt(t+${offset},${b.time}),${a.value}+(${b.value-a.value})*(t+${offset}-${a.time})/${b.time-a.time},${automation})`;}if(keys.length)automation=`if(lt(t+${offset},${keys[0].time}),${keys[0].value},${automation})`;
+    const fadeIn=clip.fadeIn?`min(1,max(0,(t+${offset})/${clip.fadeIn}))`:'1',fadeOut=clip.fadeOut?`min(1,max(0,(${clip.duration}-(t+${offset}))/${clip.fadeOut}))`:'1',delay=Math.round((at-plan.start)*48000);
+    filters.push(`[${input}:a]aformat=sample_rates=48000:channel_layouts=stereo,atrim=start=${source}:duration=${end-at},asetpts=PTS-STARTPTS,volume='${clip.volume}*(${automation})*(${fadeIn})*(${fadeOut})':eval=frame,adelay=${delay}S:all=1[a${input}]`);
+  }
+  const count=args.length/2;if(count){filters.push(Array.from({length:count},(_,i)=>`[a${i+1}]`).join('')+`amix=inputs=${count}:normalize=0,alimiter=limit=0.99:level=false:latency=true,apad,atrim=duration=${plan.end-plan.start}[mix]`);await fs.writeFile(path.join(temp,'audio-filter.txt'),filters.join(';\n'));}
+  return {args,filters};
+}
+function trusted(event) { if (event.sender !== window?.webContents || event.senderFrame !== window.webContents.mainFrame) throw new Error('Untrusted desktop request.'); }
+function handle(channel, fn) { ipcMain.handle(channel, async (event, ...args) => { trusted(event); return fn(...args); }); }
+function fail(job, error) { job.error = error instanceof Error ? error.message : String(error); window?.webContents.send('export:error', { id: job.id, error: job.error }); }
+function runEncoder(args) { return new Promise((resolve, reject) => { const process = spawn(encoderPath(), args, { windowsHide: true }); let error = ''; process.stderr.on('data', d => error = (error + d).slice(-12000)); process.on('error', reject); process.on('exit', code => code === 0 ? resolve() : reject(new Error(error || 'The encoder exited unexpectedly.'))); }); }
+function register() {
+  handle('preferences:load',()=>preferences.load());
+  handle('preferences:save',p=>preferences.save(p));
+  handle('updates:check',manual=>preferences.check(manual===true));
+  handle('updates:open',()=>{const url=preferences.releaseURL();if(/^https:\/\/github.com\/[a-z0-9-]+\/[a-z0-9_.-]+\/releases$/i.test(url))return shell.openExternal(url);});
+  handle('project:recent',async file=>{if(!preferences.state.recent.includes(file))throw new Error('Unknown recent project.');const p=await hydrate(file);pendingOpenPath=file;return {project:p,path:file};});
+  handle('close:saved',success=>{if(success&&!dirty){closing=true;window.close();}});
+  handle('project:dirty', value => { dirty = !!value; });
+  handle('project:new', () => { projectPath = pendingOpenPath = undefined; projectGeneration++; dirty = false; });
+  handle('project:opened', () => { if (!pendingOpenPath) throw new Error('No project is waiting to open.'); projectPath = pendingOpenPath; pendingOpenPath = undefined; projectGeneration++; dirty = false; });
+  handle('project:open', async () => { const choice = await dialog.showOpenDialog(window, { filters: [{ name: 'Fio Motion · .puppet', extensions: ['puppet'] }], properties: ['openFile'] }); if (choice.canceled) return null; pendingOpenPath = undefined; const p = await hydrate(choice.filePaths[0]); pendingOpenPath = choice.filePaths[0]; await preferences.remember(pendingOpenPath);return { project: p, path: pendingOpenPath }; });
+  handle('project:save', async (p, saveAs) => { validate(p); const generation = projectGeneration; let file = projectPath; if (!file || saveAs) { const choice = await dialog.showSaveDialog(window, { defaultPath: `${String(p.name).replace(/[<>:"/\\|?*]/g, '-')}.puppet`, filters: [{ name: 'Fio Motion · .puppet', extensions: ['puppet'] }] }); if (choice.canceled) return null; file = choice.filePath; } await saveProject(p, file); if (generation === projectGeneration) { projectPath = file; dirty = false; } await preferences.remember(file);return { path: file }; });
+  handle('project:collect', async p => { validate(p); const choice = await dialog.showSaveDialog(window, { defaultPath: `${p.name}.zip`, filters: [{ name: 'Portable project', extensions: ['zip'] }] }); if (choice.canceled) return null; const stored = structuredClone(p), archive = {}; let total = 0; for (let i = 0; i < stored.assets.length; i++) { const a = stored.assets[i], bytes = dataBuffer(a.data); if ((total += bytes.length) > DATA_LIMIT) throw new Error('The archive exceeds the memory budget.'); a.path = `assets/${i}.bin`; archive[a.path] = new Uint8Array(bytes); delete a.data; } archive['project.puppet'] = strToU8(JSON.stringify(stored)); await atomic(choice.filePath, zipSync(archive, { level: 0 })); return choice.filePath; });
+  handle('project:checkpoint', async (p, label) => { validate(p); const root = path.join(app.getPath('userData'), 'recovery'); await fs.mkdir(root, { recursive: true }); const file = path.join(root, `${String(p.id).replace(/[^a-z0-9-]/gi, '')}.json`); await atomic(file, JSON.stringify({ project: p, path: projectPath, label: String(label).slice(0, 200), at: new Date().toISOString() })); await fs.appendFile(path.join(root, 'journal.ndjson'), JSON.stringify({ project: p.id, label, at: new Date().toISOString() }) + '\n'); const files = await Promise.all((await fs.readdir(root)).filter(f => f.endsWith('.json')).map(async name => ({ name, modified: (await fs.stat(path.join(root,name))).mtimeMs }))); files.sort((a,b)=>b.modified-a.modified); for (const f of files.slice(5)) if(path.join(root,f.name)!==file) await fs.rm(path.join(root,f.name)).catch(()=>{}); });
+  handle('project:recover', async () => { const root = path.join(app.getPath('userData'), 'recovery'), files = await fs.readdir(root).catch(() => []); let latest; for (const f of files.filter(f => f.endsWith('.json'))) { try { const candidate = JSON.parse(await fs.readFile(path.join(root, f), 'utf8')); validate(candidate.project); if (!latest || candidate.at > latest.at) latest = candidate; } catch {} } return latest || null; });
+  handle('export:info', async () => { try { await runEncoder(['-hide_banner', '-version']); return { available: true, path: encoderPath() }; } catch { return { available: false, path: encoderPath() }; } });
+  handle('export:start', async spec => {
+    const { id, format, width, height, fps, frames, audio } = spec;
+    if (typeof id !== 'string' || !/^[a-z0-9-]+$/i.test(id) || jobs.has(id) || !['mp4','png'].includes(format) || !Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 3840 || height > 2160 || !Number.isInteger(frames) || frames < 1 || frames > 1e6 || !Number.isFinite(fps) || fps <= 0 || fps > 120) throw new Error('Invalid export settings.');
+    const choice = format === 'mp4' ? await dialog.showSaveDialog(window, { defaultPath: `${spec.name || 'animation'}.mp4`, filters: [{ name: 'MP4 video', extensions: ['mp4'] }] }) : await dialog.showOpenDialog(window, { title: 'Choose a parent folder for the PNG sequence', properties: ['openDirectory','createDirectory'] });
+    if (choice.canceled) return null;
+    const output = format === 'mp4' ? choice.filePath : path.join(choice.filePaths[0], `Puppet-${id.slice(0,8)}`), temp = path.join(app.getPath('temp'), `puppet-${id}`); await fs.mkdir(temp, { recursive: true }); if (format === 'png') await fs.mkdir(output, { recursive: true });
+    const job = { id, format, output, temp, frames, received: 0, width, height, fps, error: null, cancelled: false }; jobs.set(id, job);
+    if (format === 'mp4') {
+      const sound=await audioInputs(spec.audioPlan,temp);
+      const rate=spec.rate&&Number.isInteger(spec.rate.numerator)&&spec.rate.numerator>0&&Number.isInteger(spec.rate.denominator)&&spec.rate.denominator>0?`${spec.rate.numerator}/${spec.rate.denominator}`:String(fps);
+      const args = ['-hide_banner','-loglevel','error','-y','-f','image2pipe','-framerate',rate,'-vcodec','png','-i','pipe:0',...sound.args];
+      if(sound.filters.length)args.push('-filter_complex_script',path.join(temp,'audio-filter.txt'),'-map','0:v','-map','[mix]');
+      args.push('-c:v','h264_mf','-pix_fmt','nv12','-b:v',width>1920?'24M':'10M','-frames:v',String(frames)); if(sound.filters.length)args.push('-c:a','aac','-b:a','192k','-ar','48000','-t',String(frames/fps)); args.push('-movflags','+faststart',path.join(temp,'video.mp4'));
+      job.process = spawn(encoderPath(), args, { windowsHide: true }); job.done = new Promise((resolve, reject) => { job.process.on('error', e => { fail(job,e); reject(e); }); job.process.on('exit', code => code === 0 ? resolve() : reject(new Error(job.stderr || 'Video encoding failed. PNG sequence export remains available.'))); }); job.done.catch(() => {}); job.stderr = ''; job.process.stderr.on('data', d => { job.stderr = (job.stderr + d).slice(-12000); }); job.process.stdin.on('error', e => fail(job,e));
+    }
+    return { id, output };
+  });
+  handle('export:frame', async (id, index, data) => { const job = jobs.get(id); if (!job || job.cancelled || job.error || index !== job.received || index >= job.frames) throw new Error(job?.error || 'Export frame order is invalid.'); if(!(data instanceof ArrayBuffer)||data.byteLength<33||data.byteLength>64*1024*1024)throw new Error('Invalid PNG frame.');const bytes = Buffer.from(data); if (bytes.readUInt32BE(0) !== 0x89504e47||bytes.readUInt32BE(12)!==0x49484452||bytes.readUInt32BE(16)!==job.width||bytes.readUInt32BE(20)!==job.height) throw new Error('Invalid PNG frame.'); if (job.format === 'png') await fs.writeFile(path.join(job.output, `frame-${String(index).padStart(6,'0')}.png`), bytes, { flag: 'wx' }); else { await new Promise((resolve,reject) => job.process.stdin.write(bytes, e => e ? reject(e) : resolve())); } job.received++; return job.received; });
+  handle('export:finish', async id => { const job = jobs.get(id); if (!job || job.cancelled || job.received !== job.frames) throw new Error('The export is incomplete.'); if (job.format === 'mp4') { job.process.stdin.end(); await job.done; await fs.copyFile(path.join(job.temp,'video.mp4'), `${job.output}.${id}.tmp`); await fs.rename(`${job.output}.${id}.tmp`,job.output); } await fs.rm(job.temp,{recursive:true,force:true}); job.complete = true; return job.output; });
+  handle('export:cancel', async id => { const job = jobs.get(id); if (!job || job.complete) return; job.cancelled = true; job.process?.kill(); if (job.done) await job.done.catch(() => {}); await fs.rm(job.temp,{recursive:true,force:true}); });
+  handle('export:reveal', id => { const job = jobs.get(id); if (job?.complete) shell.showItemInFolder(job.output); });
+}
+app.whenReady().then(async () => {
+  await preferences.load();register(); window = new BrowserWindow({ show: process.env.PUPPET_TEST_APP !== '1', width: 1540, height: 980, minWidth: 1100, minHeight: 740, title: 'Fio Motion', backgroundColor: '#15161b', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname,'preload.cjs'), sandbox: true, contextIsolation: true, nodeIntegration: false, backgroundThrottling: false } });
+  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' })); window.webContents.on('will-navigate', (event,url) => { if (url !== window.webContents.getURL()) event.preventDefault(); });
+  let closePending=false;
+  window.on('close', event => { if (dirty && !closing) { event.preventDefault();if(closePending)return;closePending=true;dialog.showMessageBox(window,{type:'question',buttons:['Save','Discard','Cancel'].map(text),defaultId:0,cancelId:2,message:text('This project has unsaved changes.')}).then(result=>{closePending=false;if(result.response===1){closing=true;window.destroy();}else if(result.response===0)window.webContents.send('project:save-request');}).catch(()=>{closePending=false;});} });
+
+  if (process.env.PUPPET_DEV_URL) window.loadURL(process.env.PUPPET_DEV_URL); else window.loadFile(path.join(__dirname,'..','dist','index.html'));
+});
+app.on('before-quit',()=>{for(const job of jobs.values())if(!job.complete)job.process?.kill();});
+app.on('window-all-closed',()=>app.quit());
+module.exports = { safeResolve, validate, saveProject, hydrate, atomic };

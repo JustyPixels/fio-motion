@@ -1,0 +1,32 @@
+Puppet Studio dependency notices
+
+Electron / Chromium / Node.js: Electron is MIT licensed. The desktop distribution includes Electron's LICENSE and LICENSES.chromium.html, covering bundled Chromium and runtime dependencies.
+https://github.com/electron/electron
+
+React and React DOM: MIT. Copyright Meta Platforms, Inc. and affiliates.
+https://github.com/facebook/react
+
+ag-psd: MIT. Copyright Agamnentzar and contributors.
+https://github.com/Agamnentzar/ag-psd
+
+Immer: MIT. Copyright Michel Weststrate and contributors.
+https://github.com/immerjs/immer
+
+fflate: MIT. Copyright Arjun Barrett and contributors.
+https://github.com/101arrowz/fflate
+
+Lucide: ISC. Copyright Lucide contributors; originating Feather icons are MIT licensed.
+https://github.com/lucide-icons/lucide
+
+Spade: MIT OR Apache-2.0. Copyright Spade contributors.
+https://github.com/Stoeoef/spade
+
+nalgebra and nalgebra-sparse: Apache-2.0. Copyright the nalgebra developers.
+https://github.com/dimforge/nalgebra
+
+Rust numeric support libraries (approx, num-traits, num-complex, num-integer, num-rational, simba, matrixmultiply, rawpointer, typenum, smallvec, hashbrown, foldhash, allocator-api2, robust): see the full dependency license files collected in docs/licenses.
+
+FFmpeg is launched as a separate process. Its distribution license, exact source archives, build configuration and notices are stored beside the encoder in the application resources. The custom minimal distribution uses LGPL-2.1-or-later shared libraries, zlib, Windows Media Foundation H.264 and native AAC. No GPL or nonfree encoder is enabled. zlib uses the zlib license. The bundled winpthreads runtime uses MIT/BSD terms; its COPYING text and matching mingw-w64 source archive are included. Users may replace the encoder and its libraries with compatible builds. No restriction on reverse engineering modifications to these libraries is imposed.
+https://ffmpeg.org/legal.html
+
+Development tools (Vite, TypeScript, Vitest, Playwright, electron-builder, Cargo) are not required by packaged application users. Their dependency metadata and license files remain available in the development checkout.

@@ -1,0 +1,68 @@
+node_modules/
+dist/
+release/
+.cache/
+.toolchains/
+engine/target/
+test-results/
+playwright-report/
+vendor/ffmpeg/*.exe
+*.log
+qa-results/
+vendor/ffmpeg-minimal/bin/
+vendor/ffmpeg-minimal/include/
+vendor/ffmpeg-minimal/lib/
+vendor/ffmpeg-minimal/sources/*.tar.gz
+
+# Local tests and qualification tooling
+tests/
+reports/
+playwright.config.ts
+**/*.test.*
+**/*.spec.*
+scripts/*test*
+scripts/*smoke*
+scripts/*benchmark*
+scripts/*verify*
+scripts/*desktop*
+scripts/animated-production.mjs
+scripts/cancel-production-test.mjs
+scripts/check-sample-pixels.mjs
+scripts/close-*.mjs
+scripts/codec-check.mjs
+scripts/fixtures.mjs
+scripts/qualify-packaged.mjs
+scripts/reliability.mjs
+scripts/sample-character.mjs
+scripts/sample-release-check.mjs
+scripts/package-release-assets.mjs
+scripts/localize-jsx.mjs
+
+# Downloaded tools and encoder binaries
+vendor/ffmpeg/
+vendor/ffmpeg-minimal/share/
+*.exe
+*.dll
+*.pdb
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.pem
+*.key
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Old sample artwork copies not referenced by the project
+examples/A little hello.assets/*
+!examples/A little hello.assets/781a9f86-62ff-4792-954a-4faa488d075b-081500a1c4d24cb029af.png
+!examples/A little hello.assets/3d59b3e6-0f31-4413-9b17-20cf34db755b-fce9ec7cf66efeeb721f.png
+!examples/A little hello.assets/91d0b054-cd9f-45d1-b899-b752c8177adf-1c03c80f3b2ea14a0864.png
+!examples/A little hello.assets/dec11377-a06b-4fd4-b79d-79f0c67d317b-cd0a78896d70a393a6c9.png
+!examples/A little hello.assets/1cd7e5ae-732d-4860-83cf-25885e096e24-3c539e3290a6178f0864.png
+!examples/A little hello.assets/f07981ae-e6d1-4c52-9874-cdd44e6a6cf2-b3a397e77d9cad192d03.png
