@@ -1,46 +1,46 @@
 {
-  "version": "1.0.0-rc.1",
-  "tag": "v1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
+  "tag": "v1.0.0-rc.2",
   "prerelease": true,
-  "publishedAt": "2026-10-05T21:52:31Z",
-  "url": "https://github.com/JustyPixels/fio-motion/releases/tag/v1.0.0-rc.1",
+  "publishedAt": "2026-10-06T06:12:03Z",
+  "url": "https://github.com/JustyPixels/fio-motion/releases/tag/v1.0.0-rc.2",
   "unsigned": true,
   "assets": [
     {
       "id": "installer",
-      "name": "Fio-Motion-1.0.0-rc.1-x64.exe",
+      "name": "Fio-Motion-1.0.0-rc.2-x64.exe",
       "label": "Windows installer",
       "description": "Install Fio Motion on this computer",
-      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.1/Fio-Motion-1.0.0-rc.1-x64.exe",
-      "bytes": 155189171,
-      "sha256": "6a63467b67604be314271601bc103954fe7a95558c0b4a9cde56ac360476f697"
+      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.2/Fio-Motion-1.0.0-rc.2-x64.exe",
+      "bytes": 155187725,
+      "sha256": "728b0268b4ccc22cfa089b47e3e8c5978b7e4e31347389aa4974f9f3e5dbe399"
     },
     {
       "id": "portable",
-      "name": "Fio-Motion-1.0.0-rc.1-x64-portable.exe",
+      "name": "Fio-Motion-1.0.0-rc.2-x64-portable.exe",
       "label": "Portable version",
       "description": "Run without installing",
-      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.1/Fio-Motion-1.0.0-rc.1-x64-portable.exe",
-      "bytes": 154973039,
-      "sha256": "395cee7f7521f73b0c5f7890eca366acb050b42e7917bcb94a3b2bcd5d43e9b7"
+      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.2/Fio-Motion-1.0.0-rc.2-x64-portable.exe",
+      "bytes": 154971609,
+      "sha256": "2d0c49082e44f45058c8e6a6f5da7c4c5f5699408457a7453ba9bd3a9760458f"
     },
     {
       "id": "support",
-      "name": "Fio-Motion-1.0.0-rc.1-support.zip",
+      "name": "Fio-Motion-1.0.0-rc.2-support.zip",
       "label": "Examples & guides",
       "description": "Sample characters, offline guides and compatibility notes",
-      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.1/Fio-Motion-1.0.0-rc.1-support.zip",
-      "bytes": 782783,
-      "sha256": "e5953a8aa5a942fede911345991c923438bf5c882be9aa6fc0014a941aaefc02"
+      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.2/Fio-Motion-1.0.0-rc.2-support.zip",
+      "bytes": 784937,
+      "sha256": "8ce2aa625fcf95b46ddc22cc64a824c000a37f9cabed531e9f094a2570d50223"
     },
     {
       "id": "checksums",
-      "name": "SHA256SUMS-1.0.0-rc.1.txt",
+      "name": "SHA256SUMS-1.0.0-rc.2.txt",
       "label": "SHA256 checksums",
       "description": "Verify the downloaded files",
-      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.1/SHA256SUMS-1.0.0-rc.1.txt",
+      "url": "https://github.com/JustyPixels/fio-motion/releases/download/v1.0.0-rc.2/SHA256SUMS-1.0.0-rc.2.txt",
       "bytes": 301,
-      "sha256": "dc3ca2fe9027e58717a41b5023973b6827e18a09724c90c211c808afa9f8250d"
+      "sha256": "dd839325cad67ddc7d6da98643d1c5d17eca8614dd71e13dbf7c3087360f485d"
     }
   ]
 }
