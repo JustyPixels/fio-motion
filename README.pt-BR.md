@@ -1,5 +1,9 @@
 # Fio Motion
 
+[English](README.md) · [Site e demonstração](https://justypixels.github.io/fio-motion/)
+
+[![Editor do Fio Motion](website/assets/images/editor.png)](https://justypixels.github.io/fio-motion/#demo)
+
 Um editor de animação 2D para Windows, criado por JustyPixels. Importe as peças do personagem, conecte braços, pernas e acessórios, e anime com pins, ossos e keyframes.
 
 O Fio Motion funciona offline e tem todos os recursos desbloqueados. Não precisa de conta.
@@ -36,3 +40,7 @@ O motor WebAssembly já está incluído. Para recompilá-lo ou gerar um instalad
 [Abra uma issue](https://github.com/JustyPixels/fio-motion/issues) com a versão do aplicativo, sua versão do Windows e os passos para reproduzir o problema. Uma imagem ou um projeto pequeno ajudam bastante, desde que não contenham material privado.
 
 [Compatibilidade e limitações](docs/COMPATIBILITY.md) · [Arquitetura](docs/ARCHITECTURE.md) · [Avisos das dependências](THIRD-PARTY-NOTICES.txt)
+
+## Licença
+
+O código original usa a [licença MIT](LICENSE), que permite uso e modificações pessoais ou comerciais, preservando os avisos da licença. Dependências mantêm suas próprias licenças. Veja também o [guia de contribuição](CONTRIBUTING.md).

@@ -1,40 +1,39 @@
-# Fio Motion
+<p align="center"><img src="build/icon.png" width="64" alt="Fio Motion"></p>
+<h1 align="center">Fio Motion</h1>
+<p align="center">Draw a character. Bring it to life.</p>
+<p align="center"><a href="https://justypixels.github.io/fio-motion/">Website & demo</a> · <a href="https://github.com/JustyPixels/fio-motion/releases">Download for Windows</a> · <a href="https://justypixels.github.io/fio-motion/guide/">Get started</a> · <a href="README.pt-BR.md">Português brasileiro</a></p>
 
-A 2D animation editor for Windows, made by JustyPixels. Import your character's artwork, connect its arms, legs and accessories, then animate with puppet pins, bones and keyframes.
+[![The Fio Motion editor with its layered fox character](website/assets/images/editor.png)](https://justypixels.github.io/fio-motion/#demo)
 
-Fio Motion works offline. All features are unlocked, and no account is needed.
+Fio Motion is an offline 2D character animation editor for Windows, made by JustyPixels. Keep your artwork in separate layers, connect the pieces and animate with puppet pins, bones and smooth keyframes.
 
-[Leia em português brasileiro](README.pt-BR.md)
+Free, fully unlocked and no account needed. The original code is [MIT-licensed](LICENSE).
 
-## Download
+## Try it
 
-[Get the installer or portable version](https://github.com/JustyPixels/fio-motion/releases). The `support.zip` download includes sample characters, guides and compatibility notes.
+[Download the installer or portable build](https://github.com/JustyPixels/fio-motion/releases), or [watch the studio tour](https://justypixels.github.io/fio-motion/#demo). The support archive includes example characters and offline guides.
 
-The current version is **1.0.0-rc.1**, a release candidate for testing. The executables are unsigned, so Windows may show a warning when you open them. See the [release notes](docs/RELEASE-NOTES.md) for known limitations and remaining checks.
+The current build is **1.0.0-rc.1**, an unsigned release candidate for testing. Windows may display a trust warning. Read the [release notes](docs/RELEASE-NOTES.md) for measurements, known limitations and checks still pending.
 
-## Using the editor
+## Inside the studio
 
-- **Rig:** import PNG, JPEG, WebP or PSD artwork, assemble your character and set up its joints. Connect the pieces yourself or use the humanoid assistant.
-- **Animate:** create poses on the timeline, adjust motion curves and reuse animations. New keyframes use smooth easing by default.
-- **Assemble:** arrange shots, add audio and camera moves, then export MP4 or transparent PNG sequences.
+- **Rig:** import PNG, JPEG, WebP or supported layered PSD artwork. Connect pieces yourself or use the humanoid assistant.
+- **Animate:** create poses, edit Bézier timing curves, adjust motion paths and reuse animation. New movement keys start with smooth easing.
+- **Assemble:** arrange shots, add WAV/MP3 audio and camera moves, then export MP4 or transparent PNG sequences.
 
-The canvas keeps your project's aspect ratio, including 16:9, 4:3, 1:1 and 9:16. The interface supports Brazilian Portuguese, English, Spanish, French, German, Japanese and Simplified Chinese.
-
-Start with the fox example on the welcome screen, or follow the [quick-start guide](docs/quick-start/en.md). Projects use the `.puppet` format; files from earlier betas are still supported.
+The canvas keeps your project's aspect ratio. The interface supports Brazilian Portuguese, English, Spanish, French, German, Japanese and Simplified Chinese. Existing supported `.puppet` projects remain readable.
 
 ## Run from source
-
-With Node.js installed:
 
 ```powershell
 npm ci
 npm start
 ```
 
-The WebAssembly engine is included. See the [build guide](docs/BUILD.md) to rebuild it or create a Windows package. Video export also needs the FFmpeg files described in that guide.
+The WebAssembly engine is included. See the [build guide](docs/BUILD.md) for Rust rebuilding, FFmpeg setup, Windows packages and website previews.
 
-## Found a bug?
+## Help improve it
 
-[Open an issue](https://github.com/JustyPixels/fio-motion/issues) with the app version, your Windows version and steps to reproduce the problem. A screenshot or small example project helps, as long as it doesn't contain private artwork.
+[Report a bug](https://github.com/JustyPixels/fio-motion/issues) or read [the contribution guide](CONTRIBUTING.md). Small, reproducible examples help; keep private artwork out of public reports.
 
-[Compatibility and limitations](docs/COMPATIBILITY.md) · [Architecture](docs/ARCHITECTURE.md) · [Third-party notices](THIRD-PARTY-NOTICES.txt)
+[Compatibility](docs/COMPATIBILITY.md) · [Architecture](docs/ARCHITECTURE.md) · [MIT license](LICENSE) · [Third-party notices](THIRD-PARTY-NOTICES.txt)

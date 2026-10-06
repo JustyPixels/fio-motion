@@ -10,7 +10,9 @@
     "start": "node scripts/dev.mjs",
     "build": "node scripts/generate-locales.mjs && tsc --noEmit && vite build",
     "build:wasm": "node scripts/build-wasm.mjs",
-    "dist": "npm run build:wasm && npm run build && electron-builder --win --x64"
+    "dist": "npm run build:wasm && npm run build && electron-builder --win --x64",
+    "site:build": "node website/build.mjs --offline",
+    "site:preview": "node website/serve.mjs"
   },
   "build": {
     "appId": "studio.puppet.editor",
@@ -21,7 +23,8 @@
     "files": [
       "dist/**",
       "desktop/**",
-      "package.json"
+      "package.json",
+      "LICENSE"
     ],
     "extraResources": [
       {
@@ -47,6 +50,10 @@
       {
         "from": "THIRD-PARTY-NOTICES.txt",
         "to": "THIRD-PARTY-NOTICES.txt"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
       }
     ],
     "win": {
@@ -86,5 +93,6 @@
     "vitest": "^5.0.3"
   },
   "type": "module",
-  "author": "JustyPixels"
+  "author": "JustyPixels",
+  "license": "MIT"
 }

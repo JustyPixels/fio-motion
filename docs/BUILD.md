@@ -37,3 +37,9 @@ npm run dist
 Electron-builder writes the installer and portable executable to `release`. Keep signing credentials outside the project; without credentials, the packages are unsigned. Update checks use the destination in `desktop/release-config.json`.
 
 Tests, execution reports and local qualification tools are excluded from this source publication at the project owner's request. Candidate results are available in the release's `support.zip`. Building the app does not qualify a new public release.
+
+## Website
+
+`npm run site:build` builds the static website using checked-in release metadata. `npm run site:preview` serves it at http://127.0.0.1:4173/fio-motion/. Public GitHub Actions builds fetch and validate current releases before deployment. The website does not require Electron, Rust or FFmpeg to build; curated media is checked in.
+
+The original project code is MIT-licensed. Future desktop packages include the root LICENSE in their application files and resources; third-party notices remain separate.

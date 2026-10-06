@@ -1,4 +1,4 @@
-Puppet Studio dependency notices
+Fio Motion dependency notices
 
 Electron / Chromium / Node.js: Electron is MIT licensed. The desktop distribution includes Electron's LICENSE and LICENSES.chromium.html, covering bundled Chromium and runtime dependencies.
 https://github.com/electron/electron
